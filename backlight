@@ -7,6 +7,10 @@
 # This is free software created by frax@axnet.nu,
 # feel free to use, modify and/or distribute as you see fit.
 # 
+# TODO:
+# - Handle multiple backlight devices 
+#   (currently only the first one found is used)
+#
 
 # Set LOWEST to 0 to be able to completely turn the backlight off with
 # -set and -dec or to a higher value (e.g. 1) to prevent turning the
