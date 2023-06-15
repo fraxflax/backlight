@@ -1,5 +1,7 @@
 #!/bin/sh
 # 
+# https://github.com/fraxflax/backlight
+# 
 # backlight is a POSIX-compliant (pure bourne shell) script that
 # allows you to get and set the brightness of the screen via
 # /sys/backlight if supported by your system.
