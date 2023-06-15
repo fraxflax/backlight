@@ -1,4 +1,12 @@
 #!/bin/sh
+# 
+# backlight is a POSIX-compliant (pure bourne shell) script that
+# allows you to get and set the brightness of the screen via
+# /sys/backlight if supported by your system.
+# 
+# This is free software created by frax@axnet.nu,
+# feel free to use, modify and/or distribute as you see fit.
+# 
 SYS="/sys/class/backlight/`ls -1 /sys/class/backlight/ | head -1`"
 
 USAGE() {
