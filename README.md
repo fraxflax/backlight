@@ -1,8 +1,8 @@
 # backlight
-backlight is a POSIX-compliant (pure bourne shell) script that allows you to get and set the brightness via /sys/backlight
+backlight is a POSIX-compliant (pure bourne shell) script that allows you to get and set the brightness of the screen via /sys/backlight if supported by your system.
 
-```backlight --help 
-
+`% backlight --help`
+```
 USAGE:
     backlight -get
     backlight { -set | -inc | -dec } percent
@@ -21,5 +21,5 @@ group if none specified.
 /etc/systemd/system/backlightgroup.service it if it already exists.
 
 'backlight -install' must be run as root, requires your system to use
-systemd and have systemctl in the $PATH.```
-
+systemd and have systemctl in the $PATH.
+```
