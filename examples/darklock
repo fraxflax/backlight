@@ -31,6 +31,7 @@ else
     EXITCODE=143
 fi
 
+# Restore backlight
 backlight --set $BL
 
 # Unless exited with SUCCESS, or terminated by SIGTERM or killed by
