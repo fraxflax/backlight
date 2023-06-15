@@ -36,3 +36,5 @@ USAGE:
        'backlight --install' will replace the
        /etc/systemd/system/backlightgroup.service it if it already exists.
 ```
+TODO: <br>
+* Handle multiple backlight devices (right now it just picks the first one found)
