@@ -55,7 +55,7 @@ USAGE:
        by the specified group at system startup.
 
        '$backlight --install' will replace the
-       /etc/systemd/system/backlightgroup.service it if it already exists.
+       /etc/systemd/system/backlightgroup.service if it already exists.
 EOF
         exit 1
 }
