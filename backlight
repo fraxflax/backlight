@@ -17,7 +17,7 @@
 # light completely off as this might be considered turning the screen
 # off and "xset dpms force on" on some systems will turn up the light
 # if brighness is 0.
-LOWEST=1 
+LOWEST=1
 
 SYS="/sys/class/backlight/`ls -1 /sys/class/backlight/ | head -1`"
 
