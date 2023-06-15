@@ -1,5 +1,7 @@
 #!/bin/sh
 #
+# https://github.com/fraxflax/backlight/blob/main/examples/darklock
+#
 # This script uses backlight: https://github.com/fraxflax/backlight
 # and fraxlock, en adapatble screenlocker, available as an example for: 
 # for fprintkill: https://github.com/fraxflax/fprintkill
