@@ -33,7 +33,7 @@ USAGE:
     $backlight { -s | --set | -i | --increase | -d | --decrease } percent
        Set the brightness to 'percent' of max brightness or change it
        (increase / decrease) 'percent'. 'percent' is a integer with or
-       without a following % sign.  Even though -s 0 will usually give
+       without a trailing % sign.  Even though -s 0 will usually give
        a darker screen than -s 1, these options will never completely
        turn the brightness off as it might have unexpected
        consequences (see -off).
