@@ -9,10 +9,10 @@
 # 
 
 # get current backlight, and save it
-BL=`backlight -get`
+BL=`backlight --get`
 
 # Darken screen
-backlight -set 0
+backlight --set 0
 
 # Turn screens off after xscreenlocker has launched
 test -n "$DISPLAY" && { sleep 1 ; xset dpms force off ;} &
@@ -29,7 +29,7 @@ else
     EXITCODE=143
 fi
 
-backlight -set $BL
+backlight --set $BL
 
 # Unless exited with SUCCESS, or terminated by SIGTERM or killed by
 # SIGKILL it's likely failing because we already have a screenlock
