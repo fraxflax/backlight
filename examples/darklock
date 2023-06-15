@@ -1,4 +1,12 @@
 #!/bin/sh
+#
+# This script uses backlight: https://github.com/fraxflax/backlight
+# and fraxlock, en adapatble screenlocker, available as an example for: 
+# for fprintkill: https://github.com/fraxflax/fprintkill
+# 
+# This is free software created by frax@axnet.nu,
+# feel free to use, modify and/or distribute as you see fit.
+# 
 
 # get current backlight, and save it
 BL=`backlight -get`
