@@ -13,7 +13,7 @@
 #
 
 # Set LOWEST to 0 to be able to completely turn the backlight off with
-# -set and -dec or to a higher value (e.g. 1) to prevent turning the
+# -s and -d or to a higher value (e.g. 1) to prevent turning the
 # light completely off as this might be considered turning the screen
 # off and "xset dpms force on" on some systems will turn up the light
 # if brighness is 0.
@@ -109,16 +109,16 @@ else
 
     OP=$1    
     case "$OP" in
-	-s|--set)
+        -s|--set)
             NVAL=$(($VAL*$MAX/100))
             ;;
-	-i|--increase)
+        -i|--increase)
             NVAL=$(($CUR+$VAL*$MAX/100))
             ;;
-	-d|--decrease)
+        -d|--decrease)
             NVAL=$(($CUR-$VAL*$MAX/100))
             ;;
-	*)
+        *)
             USAGE
             ;;
     esac
