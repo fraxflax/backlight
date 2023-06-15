@@ -4,22 +4,33 @@ backlight is a POSIX-compliant (pure bourne shell) script that allows you to get
 `% backlight --help`
 ```
 USAGE:
-    backlight -get
-    backlight { -set | -inc | -dec } percent
-    backlight -install [ groupname ]
+    backlight [ -g | --get ]
+       Get the current brightness value in percent
 
-'backlight { -set | -inc | -dec }' requires
-/sys/class/backlight/*/brightness to be writeable for the effective
-user. Running backlight as root (e.g. via sudo) will obviously do it,
-but better to make 'brightness' writeable for a group at boot time.
+    backlight { -s | --set | -i | --increase | -d | --decrease } percent
+       Set the brightness to 'percent' of max brightness or change it
+       (increase / decrease) 'percent'. 'percent' is a integer with or
+       without a following % sign.  Even though -s 0 will usually give
+       a darker screen than -s 1, these options will never completely
+       turn the brightness off as it might have unexpected
+       consequences (see -off).
 
-'backlight -install' will install, enable and run a systemd service
-making 'brightness' writeable by the specified group, or for the video
-group if none specified.
+    backlight { -0 | -o | --off }
+       Set the brightness to 0 (on some systems, 'xset dpms force off'
+       also sets the brightness to 0 so it may make 'xset dpms force
+       on' unexpectantly turn up the brightness under some
+       circumstances).
 
-'backlight -install' will replace the
-/etc/systemd/system/backlightgroup.service it if it already exists.
+    backlight --install [ groupname ]
+       Allow the specified group (or the video group if none
+       specified) to set the brighness forth on.
 
-'backlight -install' must be run as root, requires your system to use
-systemd and have systemctl in the $PATH.
+       Must be run by root.
+
+       If systemd is in use 'backlight --install' will also install,
+       enable and run a systemd service making 'brightness' writeable
+       by the specified group at system startup.
+
+       'backlight --install' will replace the
+       /etc/systemd/system/backlightgroup.service it if it already exists.
 ```
