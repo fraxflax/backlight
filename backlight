@@ -24,7 +24,7 @@ USAGE() {
 
 USAGE:
     $backlight [ -g | --get ]
-       Get the current brightness value in percent
+       Get the current brightness value in percent of MAX brightness.
 
     $backlight { -s | --set | -i | --increase | -d | --decrease } percent
        Set the brightness to 'percent' of max brightness or change it
@@ -41,7 +41,7 @@ USAGE:
        circumstances).
 
     $backlight --install [ groupname ]
-       Allow the specified group (or for the video group if none
+       Allow the specified group (or the video group if none
        specified) to set the brighness forth on.
 
        Must be run by root.

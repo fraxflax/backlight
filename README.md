@@ -5,7 +5,7 @@ backlight is a POSIX-compliant (pure bourne shell) script that allows you to get
 ```
 USAGE:
     backlight [ -g | --get ]
-       Get the current brightness value in percent
+       Get the current brightness value in percent of MAX brightness.
 
     backlight { -s | --set | -i | --increase | -d | --decrease } percent
        Set the brightness to 'percent' of max brightness or change it
