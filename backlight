@@ -66,12 +66,12 @@ EOF
     test `id -u` -eq 0 || USAGE "# 'backlight -install' must be run as root"
     GRP=video
     test -n "$2" && GRP=$2
+    grep -E "^$GRP:" /etc/group >/dev/null || USAGE "# group '$GRP' not found in /etc/group"
     chgrp $GRP /sys/class/backlight/*/brightness ; chmod g+w /sys/class/backlight/*/brightness
     echo
     ls -l /sys/class/backlight/*/brightness
     echo
     test -d /etc/systemd/system && {
-        grep -E "^$GRP:" /etc/group >/dev/null || USAGE "# group '$GRP' not found in /etc/group"
         cat>/etc/systemd/system/backlightgroup.service<<EOF
 [Unit]
 Description=Permission for group $GRP to set backlight brightness
