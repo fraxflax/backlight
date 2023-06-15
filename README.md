@@ -1,5 +1,6 @@
 # backlight
 backlight is a POSIX-compliant (pure bourne shell) script that allows you to get and set the brightness of the screen via /sys/backlight if supported by your system.
+It also helps you set the permissions allowing a specific group to set the brightness.
 
 See the examples folders for an example on how to use it to dim the screen when locking it, restoring the brightness when the screen is unlocked.
 
