@@ -5,7 +5,7 @@ It also helps you set the permissions allowing a specific group to set the brigh
 See the examples folders for an example on how to use it to dim the screen when locking it, restoring the brightness when the screen is unlocked.
 
 `% backlight --help`
-```
+
 __SYNOPSIS:__
     `backlight` [ `-g` | `--get` | `-get` ]
        Get the current brightness value in percent of MAX brightness.
@@ -38,7 +38,7 @@ __SYNOPSIS:__
 
        '`backlight --install`' must be executed with effective user-id 0 (run as root / with sudo).
 
-EXAMPLES:
+__EXAMPLES:__
 	Get current backlight brightness:
 	`backlight --get`    
 
@@ -53,6 +53,6 @@ EXAMPLES:
 
 	Flash the screen, restoring the backlight brightness afterwards:
 	`B=$(backlight); backlight 0 ; sleep 0.5 ; backlight 100 ; sleep 0.5 backlight 0 ; sleep 0.5 ; backlight $B`     
-```
-TODO: <br>
+
+__TODO:__ <br>
 * Handle multiple backlight devices (right now it just picks the first one found)
