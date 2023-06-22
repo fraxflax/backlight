@@ -31,31 +31,31 @@ USAGE() {
 $FMT>/dev/stderr<<EOF
 
 ${___}SYNOPSIS:
-    $backlight$__ [ -g | --get | -get ]
+    $backlight$__ [ $___-g$__ | $___--get$__ | $___-get$__ ]
        Get the current brightness value in percent of MAX brightness.
 $___
-    $backlight$__ [ -s | --set | -set ] percent
+    $backlight$__ [ $___-s$__ | $___--set$__ | $___-set$__ ] percent
        Set the brightness to 'percent' of max brightness.  'percent'
        is an integer (anything trailing the first consecutive digits
        is ignored (e.g. a %-sign), allowing you to use the --get
        output as --set input without modification).
 $___
-    $backlight$__ { -i | --increase | -inc } step
+    $backlight$__ { $___-i$__ | $___--increase$__ | $___-inc$__ } step
 ${___}    $backlight$__ +step
        Increase the brightness by step percent units of max brightnes.$
 $___
-    $backlight$__ { -i | --increase | -d | --decrease | -dec } step
+    $backlight$__ { $___-d$__ | $___--decrease$__ | $___-dec$__ } step
 ${___}    $backlight$__ -step
        Increase the brightness by step percent units of max brightnes.
 $___
-    $backlight$__ { -o | --off }
+    $backlight$__ { $___-o$__ | $___--off$__ }
 	Set the brightness to 0 (turnsthe backlight off).
        --set and --increase will never completely turn the brightness
        off, as it might have the consequence that when running 'xset
        dpms force on' the brightness will unexpectedly be increased.
 
 $___
-    $backlight$__ --install [ groupname ]
+    $backlight --install$__ [ groupname ]
        Allow the specified group (or the video group if none
        specified) to set the brighness forth on.
 
@@ -63,10 +63,10 @@ $___
        enable and run a systemd service making 'brightness' writeable
        by the specified group at system startup.
 
-       '$backlight --install' will replace the
+       '$___$backlight --install$__' will replace the
        /etc/systemd/system/backlightgroup.service if it already exists.
 
-       '$backlight --install' must be executed with effective user-id 0 (run as root / with sudo).
+       '$___$backlight --install$__' must be executed with effective user-id 0 (run as root / with sudo).
 
 ${___}EXAMPLES:$__
         Get current backlight brightness:
