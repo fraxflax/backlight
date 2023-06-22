@@ -6,36 +6,53 @@ See the examples folders for an example on how to use it to dim the screen when 
 
 `% backlight --help`
 ```
-USAGE:
-    backlight [ -g | --get ]
+__SYNOPSIS:__
+    `backlight` [ `-g` | `--get` | `-get` ]
        Get the current brightness value in percent of MAX brightness.
 
-    backlight { -s | --set | -i | --increase | -d | --decrease } percent
-       Set the brightness to 'percent' of max brightness or change it
-       (increase / decrease) 'percent'. 'percent' is a integer with or
-       without a trailing % sign.  Even though -s 0 will usually give
-       a darker screen than -s 1, these options will never completely
-       turn the brightness off as it might have unexpected
-       consequences (see -off).
+    `backlight` [ `-s` | `--set` | `-set` ] percent
+       Set the brightness to 'percent' of max brightness.  'percent' is an integer (anything trailing the first consecutive
+       digits is ignored (e.g. a %-sign), allowing you to use the --get output as --set input without modification).
 
-    backlight { -0 | -o | --off }
-       Set the brightness to 0 (on some systems, 'xset dpms force off'
-       also sets the brightness to 0 so it may make 'xset dpms force
-       on' unexpectantly turn up the brightness under some
-       circumstances).
+    `backlight` { `-i` | `--increase` | `-inc` } step
+    `backlight` +step
+       Increase the brightness by step percent units of max brightnes.$
 
-    backlight --install [ groupname ]
-       Allow the specified group (or the video group if none
-       specified) to set the brighness forth on.
+    `backlight` { `-d` | `--decrease` | `-dec` } step
+    `backlight` -step
+       Increase the brightness by step percent units of max brightnes.
 
-       Must be run by root.
+    `backlight` { `-o` | `--off` }
+	Set the brightness to 0 (turnsthe backlight off).
+       `--set` and `--increase` will never completely turn the brightness off, as it might have the consequence that when
+       running `xset dpms force on` the brightness will unexpectedly be increased.
 
-       If systemd is in use 'backlight --install' will also install,
-       enable and run a systemd service making 'brightness' writeable
-       by the specified group at system startup.
 
-       'backlight --install' will replace the
-       /etc/systemd/system/backlightgroup.service it if it already exists.
+    `backlight --install` [ groupname ]
+       Allow the specified group (or the video group if none specified) to set the brighness forth on.
+
+       If systemd is in use '`backlight --install`' will also install, enable and run a systemd service making 'brightness'
+       writeable by the specified group at system startup.
+
+       '`backlight --install`' will replace the /etc/systemd/system/backlightgroup.service if it already exists.
+
+       '`backlight --install`' must be executed with effective user-id 0 (run as root / with sudo).
+
+EXAMPLES:
+	Get current backlight brightness:
+	`backlight --get`    
+
+	Set backlight brightness to 75%:
+	`backlight 75`	
+
+	Increase backlight brightness with 5%-units:
+	`backlight +5%`	 
+
+	Decrease backlight brightness with 5%-units:
+	`backlight -d 5`	  
+
+	Flash the screen, restoring the backlight brightness afterwards:
+	`B=$(backlight); backlight 0 ; sleep 0.5 ; backlight 100 ; sleep 0.5 backlight 0 ; sleep 0.5 ; backlight $B`     
 ```
 TODO: <br>
 * Handle multiple backlight devices (right now it just picks the first one found)

@@ -50,16 +50,15 @@ ${___}    $backlight$__ -step
 $___
     $backlight$__ { $___-o$__ | $___--off$__ }
 	Set the brightness to 0 (turnsthe backlight off).
-       --set and --increase will never completely turn the brightness
-       off, as it might have the consequence that when running 'xset
-       dpms force on' the brightness will unexpectedly be increased.
+       $___--set$__ and $___--increase$__ will never completely turn the brightness
+       off, as it might have the consequence that when running '${___}xset dpms force on$__' the brightness will unexpectedly be increased.
 
 $___
     $backlight --install$__ [ groupname ]
        Allow the specified group (or the video group if none
        specified) to set the brighness forth on.
 
-       If systemd is in use '$backlight --install' will also install,
+       If systemd is in use '$___$backlight --install$__' will also install,
        enable and run a systemd service making 'brightness' writeable
        by the specified group at system startup.
 
