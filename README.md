@@ -1,10 +1,12 @@
 # backlight
+
 backlight is a POSIX-compliant (pure bourne shell) script that allows you to get and set the brightness of the screen via /sys/backlight if supported by your system.
 It also helps you set the permissions allowing a specific group to set the brightness.
 
 See the examples folders for an example on how to use it to dim the screen when locking it, restoring the brightness when the screen is unlocked.
 
-__SYNOPSIS:__  <br>
+__SYNOPSIS:__
+
 `backlight` [ `-g` | `--get` | `-get` ]  <br>
 Get the current brightness value in percent of MAX brightness.  <br>
 
@@ -33,7 +35,8 @@ If systemd is in use '`backlight --install`' will also install, enable and run a
 
 '`backlight --install`' must be executed with effective user-id 0 (run as root / with sudo).
 
-__EXAMPLES:__  <br>
+__EXAMPLES:__
+
 Get current backlight brightness:  <br>
 `backlight --get`    
 
@@ -49,5 +52,6 @@ Decrease backlight brightness with 5%-units:  <br>
 Flash the screen, restoring the backlight brightness afterwards:  <br>
 `B=$(backlight); backlight 0 ; sleep 0.5 ; backlight 100 ; sleep 0.5 backlight 0 ; sleep 0.5 ; backlight $B`     
 
-__TODO:__ <br>
+__TODO:__
+
 * Handle multiple backlight devices (right now it just picks the first one found)
