@@ -23,34 +23,41 @@ LOWEST=1
 
 SYS="/sys/class/backlight/`ls -1 /sys/class/backlight/ | head -1`"
 
+backlight=`basename $0` || backlight=backlight
 USAGE() {
-    backlight=`basename $0` || backlight=backlight
-    test -n "$1" && /bin/echo -e "\n###\n$@\n###"
-    cat>/dev/stderr<<EOF
+    COLS=72; ___=''; __=''; which tput>/dev/null && { COLS=`tput cols`; ___=`tput bold`; __=`tput sgr0`; }
+    FMT=cat;which fmt>/dev/null && FMT="fmt -w $COLS"
+    [ -n "$1" ] && /bin/echo -e "\n###\n$@\n###" >/dev/stderrr
+$FMT>/dev/stderr<<EOF
 
-USAGE:
-    $backlight [ -g | --get ]
+${___}SYNOPSIS:
+    $backlight$__ [ -g | --get | -get ]
        Get the current brightness value in percent of MAX brightness.
+$___
+    $backlight$__ [ -s | --set | -set ] percent
+       Set the brightness to 'percent' of max brightness.  'percent'
+       is an integer (anything trailing the first consecutive digits
+       is ignored (e.g. a %-sign), allowing you to use the --get
+       output as --set input without modification).
+$___
+    $backlight$__ { -i | --increase | -inc } step
+${___}    $backlight$__ +step
+       Increase the brightness by step percent units of max brightnes.$
+$___
+    $backlight$__ { -i | --increase | -d | --decrease | -dec } step
+${___}    $backlight$__ -step
+       Increase the brightness by step percent units of max brightnes.
+$___
+    $backlight$__ { -o | --off }
+	Set the brightness to 0 (turnsthe backlight off).
+       --set and --increase will never completely turn the brightness
+       off, as it might have the consequence that when running 'xset
+       dpms force on' the brightness will unexpectedly be increased.
 
-    $backlight { -s | --set | -i | --increase | -d | --decrease } percent
-       Set the brightness to 'percent' of max brightness or change it
-       (increase / decrease) 'percent'. 'percent' is a integer with or
-       without a trailing % sign.  Even though -s 0 will usually give
-       a darker screen than -s 1, these options will never completely
-       turn the brightness off as it might have unexpected
-       consequences (see -off).
-
-    $backlight { -0 | -o | --off }
-       Set the brightness to 0 (on some systems, 'xset dpms force off'
-       also sets the brightness to 0 so it may make 'xset dpms force
-       on' unexpectantly turn up the brightness under some
-       circumstances).
-
-    $backlight --install [ groupname ]
+$___
+    $backlight$__ --install [ groupname ]
        Allow the specified group (or the video group if none
        specified) to set the brighness forth on.
-
-       Must be run by root.
 
        If systemd is in use '$backlight --install' will also install,
        enable and run a systemd service making 'brightness' writeable
@@ -58,6 +65,25 @@ USAGE:
 
        '$backlight --install' will replace the
        /etc/systemd/system/backlightgroup.service if it already exists.
+
+       '$backlight --install' must be executed with effective user-id 0 (run as root / with sudo).
+
+${___}EXAMPLES:$__
+        Get current backlight brightness:
+${___}    $backlight --get    $__
+
+        Set backlight brightness to 75%:
+${___}    $backlight 75    $__
+
+        Increase backlight brightness with 5%-units:
+${___}    $backlight +5%    $__
+
+        Decrease backlight brightness with 5%-units:
+${___}    $backlight -d 5    $__
+
+        Flash the screen, restoring the backlight brightness afterwards:
+${___}    B=\$($backlight); $backlight 0 ; sleep 0.5 ; $backlight 100 ; sleep 0.5 $backlight 0 ; sleep 0.5 ; $backlight \$B     $__
+
 EOF
         exit 1
 }
@@ -65,16 +91,16 @@ EOF
 [ -e "$SYS/brightness" -a -e "$SYS/max_brightness" ] || USAGE "# No supported backlight system in /sys/class/backlight"
 
 [ "--install" = "$1" ] && {
-    test `id -u` -eq 0 || USAGE "# 'backlight -install' must be run as root"
+    [ `id -u` -eq 0 ] || USAGE "# '$backlight --install' must be run as root"
     GRP=video
-    test -n "$2" && GRP=$2
+    [ -n "$2" ] && GRP=$2
     grep -E "^$GRP:" /etc/group >/dev/null || USAGE "# group '$GRP' not found in /etc/group"
     chgrp $GRP /sys/class/backlight/*/brightness ; chmod g+w /sys/class/backlight/*/brightness
     echo
     ls -l /sys/class/backlight/*/brightness
     echo
-    test -d /etc/systemd/system && {
-        cat>/etc/systemd/system/backlightgroup.service<<EOF
+    [ -d /etc/systemd/system ] || { echo "WARNING '/etc/systemd/system/' does not exists, systemd backlightgroup.service not installed."; exit 0;}
+    cat>/etc/systemd/system/backlightgroup.service<<EOF
 [Unit]
 Description=Permission for group $GRP to set backlight brightness
 After=syslog.target
@@ -87,46 +113,55 @@ RemainAfterExit=no
 [Install]
 WantedBy=sysinit.target
 EOF
-        systemctl enable backlightgroup.service || USAGE "# failed to enable the backlightgroup.service"
-        systemctl start backlightgroup.service || USAGE "# failed to start the backlightgroup.service"
-        systemctl status --no-pager backlightgroup.service
-    }
+    systemctl enable backlightgroup.service || USAGE "# failed to enable the backlightgroup.service"
+    systemctl start backlightgroup.service || USAGE "# failed to start the backlightgroup.service"
+    systemctl status --no-pager backlightgroup.service
     exit 0
 }
+
 MAX=`cat "$SYS/max_brightness"`
 CUR=`cat "$SYS/brightness"`
 
-[ "-g" = "$1" -o "--get" = "$1" -o -z "$1" ] && {
+[ "-g" = "$1" -o "--get" = "$1" -o "-get" = "$1" -o -z "$1" ] && {
     echo $(($CUR*100/$MAX))%
     exit 0
 }
 
-if [ "-0" = "$1" -o "-o" = "$1" -o "--off" = "$1" ]; then
-    NVAL=0
-    LOWEST=0
-else 
-    VAL=`echo $2 | sed 's/[^0-9]*\([0-9][0-9]*\).*/\1/'` # just keep the first found consecutive digits
-    ISNUM=`echo $VAL | sed 's/[0-9]*//'` # if there was no digits at all this will be nonempty
-    test -z "$VAL" -o -n "$ISNUM" && USAGE
+[ "-o" = "$1" -o "--off" = "$1" ] && {
+    echo 0 > "$SYS/brightness"
+    exit 0;
+}
 
-    OP=$1    
-    case "$OP" in
-        -s|--set)
-            NVAL=$(($VAL*$MAX/100))
-            ;;
-        -i|--increase)
-            NVAL=$(($CUR+$VAL*$MAX/100))
-            ;;
-        -d|--decrease)
-            NVAL=$(($CUR-$VAL*$MAX/100))
-            ;;
-        *)
-            USAGE
-            ;;
-    esac
-fi
-test $NVAL -gt $MAX && NVAL=$MAX
-test $NVAL -lt $LOWEST && NVAL=$LOWEST 
+OP=$1
+VAL=$2
+[ -z "$VAL" ] && {
+    VAL=$OP
+    echo $OP | grep -E '^(-|\+)' >/dev/null || OP="-s"
+}
+VAL=`echo $VAL | sed -E 's/([^0-9]*)([0-9][0-9]*).*/\2/'` # just keep the first found consecutive digits
+ISNUM=`echo $VAL | sed 's/[0-9]*//'` # if there was no digits at all this will be nonempty
+
+[ -z "$VAL" -o -n "$ISNUM" ] && USAGE
+
+#echo "OP:$OP VAL:$VAL ISNUM:$ISNUM" >/dev/stderr
+
+case "$OP" in
+    -s|--set|-set)
+        NVAL=$(($VAL*$MAX/100))
+        ;;
+    -i|--increase|-inc|+[0-9]*)
+        NVAL=$(($CUR+$VAL*$MAX/100))
+        ;;
+    -d|--decrease|-dec|-[0-9]*)
+        NVAL=$(($CUR-$VAL*$MAX/100))
+        ;;
+    *)
+        USAGE
+        ;;
+esac
+
+[ $NVAL -gt $MAX ] && NVAL=$MAX
+[ $NVAL -lt $LOWEST ] && NVAL=$LOWEST 
 echo $NVAL > "$SYS/brightness"
 
 #echo $(($NVAL*100/$MAX))"% ($NVAL/$MAX)" >/dev/stderr
