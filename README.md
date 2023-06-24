@@ -7,21 +7,21 @@ See the examples folders for an example on how to use it to dim the screen when 
 
 __SYNOPSIS:__
 
-`backlight` [ `-g` | `--get` | `-get` ]  <br>
+`backlight` [ OPTIONS ] [ `-g` | `--get` | `-get` ]  <br>
 Get the current brightness value in percent of MAX brightness.  <br>
 
-`backlight` [ `-s` | `--set` | `-set` ] percent  <br>
+`backlight` [ OPTIONS ]  [ `-s` | `--set` | `-set` ] percent  <br>
 Set the brightness to 'percent' of max brightness.  'percent' is an integer (anything trailing the first consecutive digits is ignored (e.g. a %-sign), allowing you to use the --get output as --set input without modification).
 
-`backlight` { `-i` | `--increase` | `-inc` } step  <br>
+`backlight` [ OPTIONS ]  { `-i` | `--increase` | `-inc` } step  <br>
 `backlight` +step  <br>
 Increase the brightness by step percent units of max brightnes.
 
-`backlight` { `-d` | `--decrease` | `-dec` } step  <br>
+`backlight` [ OPTIONS ]  { `-d` | `--decrease` | `-dec` } step  <br>
 `backlight` -step  <br>
 Increase the brightness by step percent units of max brightnes.
 
-`backlight` { `-o` | `--off` }  <br>
+`backlight` [ OPTIONS ]  { `-o` | `--off` }  <br>
 Set the brightness to 0 (turnsthe backlight off).  <br>
 `--set` and `--increase` will never completely turn the brightness off, as it might have the consequence that when running `xset dpms force on` the brightness will unexpectedly be increased.
 
