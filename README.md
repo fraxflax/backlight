@@ -35,6 +35,18 @@ If systemd is in use '`backlight --install`' will also install, enable and run a
 
 '`backlight --install`' must be executed with effective user-id 0 (run as root / with sudo).
 
+__OPTIONS:__
+     `--sysfs` [ `first` | /sys/class/backlight/device | `all` ]
+
+`backlight --sysfs first` ... <br>
+Use the first device found in /sys/class/backlight/ . (This is the default.)
+
+`backlight --sysfs /sys/class/backlight/intel_backlight` ... <br>
+Use the specified backlight device, e.g. intel_backlight.
+
+`backlight --sysfs all` ... <br>
+Do the operation for all backlight devices found in /sys/class/backlight/ .
+
 __EXAMPLES:__
 
 Get current backlight brightness:  <br>
@@ -48,6 +60,9 @@ Increase backlight brightness with 5%-units:  <br>
 
 Decrease backlight brightness with 5%-units:  <br>
 `backlight -d 5`	  
+
+Turn screen off (set brightness to 0) for all backlight devices. <br>
+`backlight --sysfs all --off`
 
 Flash the screen, restoring the backlight brightness afterwards:  <br>
 `B=$(backlight); backlight 0 ; sleep 0.5 ; backlight 100 ; sleep 0.5 ; backlight 0 ; sleep 0.5 ; backlight $B`     
