@@ -9,10 +9,6 @@
 # This is free software created by frax@axnet.nu,
 # feel free to use, modify and/or distribute as you see fit.
 # 
-# TODO:
-# - Handle multiple backlight devices 
-#   (currently only the first one found is used)
-#
 
 # Set LOWEST to 0 to be able to completely turn the backlight off with
 # -s and -d or to a higher value (e.g. 1) to prevent turning the
@@ -47,7 +43,7 @@ ${___}    $backlight$__ -step
        Increase the brightness by step percent units of max brightnes.
 $___
     $backlight$__ [ OPTIONS ] { $___-o$__ | $___--off$__ }
-	Set the brightness to 0 (turnsthe backlight off).
+        Set the brightness to 0 (turnsthe backlight off).
        $___--set$__ and $___--increase$__ will never completely turn the brightness
        off, as it might have the consequence that when running '${___}xset dpms force on$__' the brightness will unexpectedly be increased.
 
@@ -72,7 +68,7 @@ ${___}    backlight --sysfs first$__ ...
         Use the first device found in /sys/class/backlight/ . (This is the default.)
 
 ${___}    backlight --sysfs /sys/class/backlight/intel_backlight$__ ...
-	Use the specified backlight device, e.g. intel_backlight.
+        Use the specified backlight device, e.g. intel_backlight.
 
 ${___}    backlight --sysfs all$__ ...
         Do the operation for all backlight devices found in /sys/class/backlight/ .
@@ -104,13 +100,13 @@ EOF
 
 if [ "--sysfs" = "$1" ]; then
     if [ "all" = "$2" ]; then
-	sysfs="`echo /sys/class/backlight/*`"
+        sysfs="`echo /sys/class/backlight/*`"
     elif [ -d "$2" -a -e "$2/brightness" -a -e "$2/max_brightness" ]; then
-	sysfs="$2"
+        sysfs="$2"
     elif ["first" = "$2" ]; then
-	sysfs="/sys/class/backlight/`ls -1 /sys/class/backlight/ | head -1`"
+        sysfs="/sys/class/backlight/`ls -1 /sys/class/backlight/ | head -1`"
     else
-	USAGE "# unsupported --sysfs device"
+        USAGE "# unsupported --sysfs device"
     fi
     OP=$3
     VAL=$4
@@ -156,49 +152,49 @@ for SYS in $sysfs; do
     echo "SYS:$sysfs" >/dev/stderr
     ls $SYS
     [ -e "$SYS/brightness" -a -e "$SYS/max_brightness" ] && {
-	MAX=`cat "$SYS/max_brightness"`
-	CUR=`cat "$SYS/brightness"`
+        MAX=`cat "$SYS/max_brightness"`
+        CUR=`cat "$SYS/brightness"`
 
-	[ "-g" = "$OP" -o "--get" = "$1" -o "-get" = "$1" -o -z "$1" ] && {
-	    echo $(($CUR*100/$MAX))%
-	    exit 0
-	}
+        [ "-g" = "$OP" -o "--get" = "$1" -o "-get" = "$1" -o -z "$1" ] && {
+            echo $(($CUR*100/$MAX))%
+            exit 0
+        }
 
-	[ "-o" = "$OP" -o "--off" = "$1" ] && {
-	    echo 0 > "$SYS/brightness"
-	    exit 0;
-	}
+        [ "-o" = "$OP" -o "--off" = "$1" ] && {
+            echo 0 > "$SYS/brightness"
+            exit 0;
+        }
 
-	[ -z "$VAL" ] && {
-	    VAL=$OP
-	    echo $OP | grep -E '^(-|\+)' >/dev/null || OP="-s"
-	}
-	VAL=`echo $VAL | sed -E 's/([^0-9]*)([0-9][0-9]*).*/\2/'` # just keep the first found consecutive digits
-	ISNUM=`echo $VAL | sed 's/[0-9]*//'` # if there was no digits at all this will be nonempty
+        [ -z "$VAL" ] && {
+            VAL=$OP
+            echo $OP | grep -E '^(-|\+)' >/dev/null || OP="-s"
+        }
+        VAL=`echo $VAL | sed -E 's/([^0-9]*)([0-9][0-9]*).*/\2/'` # just keep the first found consecutive digits
+        ISNUM=`echo $VAL | sed 's/[0-9]*//'` # if there was no digits at all this will be nonempty
 
-	[ -z "$VAL" -o -n "$ISNUM" ] && USAGE
-	#echo "OP:$OP VAL:$VAL ISNUM:$ISNUM" >/dev/stderr
+        [ -z "$VAL" -o -n "$ISNUM" ] && USAGE
+        #echo "OP:$OP VAL:$VAL ISNUM:$ISNUM" >/dev/stderr
     
-	case "$OP" in
-	    -s|--set|-set)
-		NVAL=$(($VAL*$MAX/100))
-		;;
-	    -i|--increase|-inc|+[0-9]*)
-		NVAL=$(($CUR+$VAL*$MAX/100))
-		;;
-	    -d|--decrease|-dec|-[0-9]*)
-		NVAL=$(($CUR-$VAL*$MAX/100))
-		;;
-	    *)
-		USAGE
-		;;
-	esac
-	
-	[ $NVAL -gt $MAX ] && NVAL=$MAX
-	[ $NVAL -lt $LOWEST ] && NVAL=$LOWEST 
-	echo $NVAL > "$SYS/brightness"
-	
-	#echo $(($NVAL*100/$MAX))"% ($NVAL/$MAX)" >/dev/stderr
+        case "$OP" in
+            -s|--set|-set)
+                NVAL=$(($VAL*$MAX/100))
+                ;;
+            -i|--increase|-inc|+[0-9]*)
+                NVAL=$(($CUR+$VAL*$MAX/100))
+                ;;
+            -d|--decrease|-dec|-[0-9]*)
+                NVAL=$(($CUR-$VAL*$MAX/100))
+                ;;
+            *)
+                USAGE
+                ;;
+        esac
+        
+        [ $NVAL -gt $MAX ] && NVAL=$MAX
+        [ $NVAL -lt $LOWEST ] && NVAL=$LOWEST 
+        echo $NVAL > "$SYS/brightness"
+        
+        #echo $(($NVAL*100/$MAX))"% ($NVAL/$MAX)" >/dev/stderr
     }
 done
 exit 0
