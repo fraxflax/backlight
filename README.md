@@ -67,6 +67,3 @@ Turn screen off (set brightness to 0) for all backlight devices. <br>
 Flash the screen, restoring the backlight brightness afterwards:  <br>
 `B=$(backlight); backlight 0 ; sleep 0.5 ; backlight 100 ; sleep 0.5 ; backlight 0 ; sleep 0.5 ; backlight $B`     
 
-__TODO:__
-
-* Handle multiple backlight devices (right now it just picks the first one found)
