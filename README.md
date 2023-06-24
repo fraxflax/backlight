@@ -22,8 +22,8 @@ Increase the brightness by step percent units of max brightnes.
 Increase the brightness by step percent units of max brightnes.
 
 `backlight` [ OPTIONS ]  { `-o` | `--off` }  <br>
-Set the brightness to 0 (turnsthe backlight off).  <br>
-`--set` and `--increase` will never completely turn the brightness off, as it might have the consequence that when running `xset dpms force on` the brightness will unexpectedly be increased.
+Set the brightness to 0 (turn the backlight off).  <br>
+`-s` and `-d` will never completely turn the brightness off, as it might have the consequence that when running `xset dpms force on` the brightness will unexpectedly be increased.
 
 
 `backlight --install` [ groupname ]  <br>
@@ -36,7 +36,7 @@ If systemd is in use '`backlight --install`' will also install, enable and run a
 '`backlight --install`' must be executed with effective user-id 0 (run as root / with sudo).
 
 __OPTIONS:__
-     `--sysfs` [ `first` | /sys/class/backlight/device | `all` ]
+`--sysfs` [ `first` | /sys/class/backlight/device | `all` ]
 
 `backlight --sysfs first` ... <br>
 Use the first device found in /sys/class/backlight/ . (This is the default.)
