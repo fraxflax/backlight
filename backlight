@@ -81,7 +81,7 @@ ${___}    $backlight +5%    $__
 ${___}    $backlight -d 5    $__
 
         Flash the screen, restoring the backlight brightness afterwards:
-${___}    B=\$($backlight); $backlight 0 ; sleep 0.5 ; $backlight 100 ; sleep 0.5 $backlight 0 ; sleep 0.5 ; $backlight \$B     $__
+${___}    B=\$($backlight); $backlight 0 ; sleep 0.5 ; $backlight 100 ; sleep 0.5 ; $backlight 0 ; sleep 0.5 ; $backlight \$B     $__
 
 EOF
         exit 1

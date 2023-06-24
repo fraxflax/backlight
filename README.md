@@ -50,7 +50,7 @@ Decrease backlight brightness with 5%-units:  <br>
 `backlight -d 5`	  
 
 Flash the screen, restoring the backlight brightness afterwards:  <br>
-`B=$(backlight); backlight 0 ; sleep 0.5 ; backlight 100 ; sleep 0.5 backlight 0 ; sleep 0.5 ; backlight $B`     
+`B=$(backlight); backlight 0 ; sleep 0.5 ; backlight 100 ; sleep 0.5 ; backlight 0 ; sleep 0.5 ; backlight $B`     
 
 __TODO:__
 
