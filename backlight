@@ -36,14 +36,14 @@ $___
 $___
     $backlight$__ [ OPTIONS ] { $___-i$__ | $___--increase$__ | $___-inc$__ } step
 ${___}    $backlight$__ +step
-       Increase the brightness by step percent units of max brightnes.$
+       Increase the brightness by step percent units of max brightnes.
 $___
     $backlight$__ [ OPTIONS ] { $___-d$__ | $___--decrease$__ | $___-dec$__ } step
 ${___}    $backlight$__ -step
        Increase the brightness by step percent units of max brightnes.
 $___
     $backlight$__ [ OPTIONS ] { $___-o$__ | $___--off$__ }
-        Set the brightness to 0 (turnsthe backlight off).
+        Set the brightness to 0 (turn the backlight off).
        $___--set$__ and $___--increase$__ will never completely turn the brightness
        off, as it might have the consequence that when running '${___}xset dpms force on$__' the brightness will unexpectedly be increased.
 
