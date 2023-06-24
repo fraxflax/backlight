@@ -44,7 +44,7 @@ ${___}    $backlight$__ -step
 $___
     $backlight$__ [ OPTIONS ] { $___-o$__ | $___--off$__ }
         Set the brightness to 0 (turn the backlight off).
-       $___--set$__ and $___--increase$__ will never completely turn the brightness
+       $___-s$__ and $___-d$__ will never completely turn the brightness
        off, as it might have the consequence that when running '${___}xset dpms force on$__' the brightness will unexpectedly be increased.
 
 $___
