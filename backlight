@@ -149,8 +149,7 @@ EOF
 
 
 for SYS in $sysfs; do
-    echo "SYS:$sysfs" >/dev/stderr
-    ls $SYS
+    #echo "SYS:$sysfs" >/dev/stderr
     [ -e "$SYS/brightness" -a -e "$SYS/max_brightness" ] && {
         MAX=`cat "$SYS/max_brightness"`
         CUR=`cat "$SYS/brightness"`
