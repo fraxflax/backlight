@@ -19,7 +19,7 @@ Increase the brightness by step percent units of max brightnes.
 
 `backlight` [ OPTIONS ]  { `-d` | `--decrease` | `-dec` } step  <br>
 `backlight` -step  <br>
-Increase the brightness by step percent units of max brightnes.
+Decrease the brightness by step percent units of max brightnes.
 
 `backlight` [ OPTIONS ]  { `-o` | `--off` }  <br>
 Set the brightness to 0 (turn the backlight off).  <br>
