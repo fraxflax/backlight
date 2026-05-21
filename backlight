@@ -131,18 +131,20 @@ fi
     cat>/etc/systemd/system/backlightgroup.service<<EOF
 [Unit]
 Description=Permission for group $GRP to set backlight brightness
-After=syslog.target
+After=systemd-modules-load.service
 
 [Service]
 Type=oneshot
-ExecStart=/bin/sh -c '/bin/chgrp $GRP /sys/class/backlight/*/brightness ; /bin/chmod g+w /sys/class/backlight/*/brightness'
+ExecStart=/bin/sh -c '/bin/chgrp video /sys/class/backlight/*/brightness ; /bin/chmod g+w /sys/class/backlight/*/brightness'
 RemainAfterExit=no
 
 [Install]
-WantedBy=sysinit.target
+WantedBy=multi-user.target graphical.target
+
 EOF
-    systemctl enable backlightgroup.service || USAGE "# failed to enable the backlightgroup.service"
-    systemctl start backlightgroup.service || USAGE "# failed to start the backlightgroup.service"
+    systemctl daemon-reload || USAGE '# failed to reload systemd'
+    systemctl enable backlightgroup.service || USAGE '# failed to enable the backlightgroup.service'
+    systemctl start backlightgroup.service || USAGE '# failed to start the backlightgroup.service'
     systemctl status --no-pager backlightgroup.service
     exit 0
 }
