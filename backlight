@@ -17,12 +17,13 @@
 # if brighness is 0.
 LOWEST=1
 
-backlight=`basename $0` || backlight=backlight
+backlight=$(basename $0) || backlight=backlight
 USAGE() {
-    COLS=72; ___=''; __=''; which tput>/dev/null && { COLS=`tput cols`; ___=`tput bold`; __=`tput sgr0`; }
+    COLS=72; ___=''; __=''; which tput>/dev/null && { COLS=$(tput cols); ___=$(tput bold); __=$(tput sgr0); }
     FMT=cat;which fmt>/dev/null && FMT="fmt -w $COLS"
-    [ -n "$1" ] && /bin/echo -e "\n###\n$@\n###" >/dev/stderrr
-$FMT>/dev/stderr<<EOF
+    [ -n "$1" ] && printf '\n###\n# ERROR:\n# %s\n###\n' "$1" >&2
+
+$FMT >&2 <<EOF
 
 ${___}SYNOPSIS:
     $backlight$__ [ OPTIONS ] [ $___-g$__ | $___--get$__ | $___-get$__ ]
@@ -92,37 +93,44 @@ ${___}    $backlight --sysfs all --off    $__
 
         Flash the screen, restoring the backlight brightness afterwards:
 ${___}    B=\$($backlight); $backlight 0 ; sleep 0.5 ; $backlight 100 ; sleep 0.5 ; $backlight 0 ; sleep 0.5 ; $backlight \$B     $__
-
 EOF
+    [ -n "$1" ] && printf '\n###\n# ERROR:\n# %s\n###\n\n' "$1" >&2
         exit 1
 }
 
 
 if [ "--sysfs" = "$1" ]; then
     if [ "all" = "$2" ]; then
-        sysfs="`echo /sys/class/backlight/*`"
-    elif [ -d "$2" -a -e "$2/brightness" -a -e "$2/max_brightness" ]; then
+	sysfs=
+	for s in $(ls /sys/class/backlight); do
+	    [ "$sysfs" ]  && sysfs="$sysfs "
+	    sysfs="$sysfs/sys/class/backlight/$s"
+	done
+    elif [ -d "$2" ] && [ -e "$2/brightness" ] && [ -e "$2/max_brightness" ]; then
         sysfs="$2"
-    elif ["first" = "$2" ]; then
-        sysfs="/sys/class/backlight/`ls -1 /sys/class/backlight/ | head -1`"
+    elif [ "first" = "$2" ]; then
+	sysfs="/sys/class/backlight/$(ls -1 /sys/class/backlight | head -1)"
     else
-        USAGE "# unsupported --sysfs device"
+        USAGE 'unsupported --sysfs device'
     fi
     OP=$3
     VAL=$4
 else
     OP=$1
     VAL=$2
-    sysfs="/sys/class/backlight/`ls -1 /sys/class/backlight/ | head -1`"
-    [ -e "$sysfs/brightness" -a -e "$sysfs/max_brightness" ] || USAGE "# No supported backlight system in /sys/class/backlight"
+    sysfs="/sys/class/backlight/$(ls -1 /sys/class/backlight | head -1)"
 fi
 
+[ "$sysfs" ] || USAGE 'No backlight system found in /sys/class/backlight'
+for s in $sysfs; do
+	[ -e "$s/brightness" ] && [ "$s/max_brightness" ] || USAGE '"$s" does not appear to be a valid backlight sysfs device'
+done
 
 [ "--install" = "$OP" ] && {
-    [ `id -u` -eq 0 ] || USAGE "# '$backlight --install' must be run as root"
+    [ $(id -u) -eq 0 ] || USAGE "'$backlight --install' must be run as root"
     GRP=video
     [ -n "$VAL" ] && GRP=$VAL
-    grep -E "^$GRP:" /etc/group >/dev/null || USAGE "# group '$GRP' not found in /etc/group"
+    grep -E "^$GRP:" /etc/group >/dev/null || USAGE 'group "$GRP" not found in /etc/group'
     chgrp $GRP /sys/class/backlight/*/brightness ; chmod g+w /sys/class/backlight/*/brightness
     echo
     ls -l /sys/class/backlight/*/brightness
@@ -135,7 +143,7 @@ After=systemd-modules-load.service
 
 [Service]
 Type=oneshot
-ExecStart=/bin/sh -c '/bin/chgrp video /sys/class/backlight/*/brightness ; /bin/chmod g+w /sys/class/backlight/*/brightness'
+ExecStart=/bin/sh -c '/bin/chgrp $GRP /sys/class/backlight/*/brightness ; /bin/chmod g+w /sys/class/backlight/*/brightness'
 RemainAfterExit=no
 
 [Install]
@@ -152,17 +160,17 @@ EOF
 
 
 for SYS in $sysfs; do
-    #echo "SYS:$sysfs" >/dev/stderr
-    [ -e "$SYS/brightness" -a -e "$SYS/max_brightness" ] && {
-        MAX=`cat "$SYS/max_brightness"`
-        CUR=`cat "$SYS/brightness"`
+    #echo "SYS:$sysfs" >&2
+    [ -e "$SYS/brightness" ] && [ -e "$SYS/max_brightness" ] && {
+        MAX=$(cat "$SYS/max_brightness")
+        CUR=$(cat "$SYS/brightness")
 
-        [ "-g" = "$OP" -o "--get" = "$1" -o "-get" = "$1" -o -z "$1" ] && {
+        [ "-g" = "$OP" ] || [ "--get" = "$OP" ] || [ "-get" = "$OP" ] || [ -z "$OP" ] && {
             echo $(($CUR*100/$MAX))%
             exit 0
         }
 
-        [ "-o" = "$OP" -o "--off" = "$1" ] && {
+        [ "-o" = "$OP" ] || [ "--off" = "$OP" ] && {
             echo 0 > "$SYS/brightness"
             exit 0;
         }
@@ -171,11 +179,11 @@ for SYS in $sysfs; do
             VAL=$OP
             echo $OP | grep -E '^(-|\+)' >/dev/null || OP="-s"
         }
-        VAL=`echo $VAL | sed -E 's/([^0-9]*)([0-9][0-9]*).*/\2/'` # just keep the first found consecutive digits
-        ISNUM=`echo $VAL | sed 's/[0-9]*//'` # if there was no digits at all this will be nonempty
+        VAL=$(echo $VAL | sed -E 's/([^0-9]*)([0-9][0-9]*).*/\2/') # just keep the first found consecutive digits
+        ISNUM=$(echo $VAL | sed 's/[0-9]*//') # if there was no digits at all this will be nonempty
 
-        [ -z "$VAL" -o -n "$ISNUM" ] && USAGE
-        #echo "OP:$OP VAL:$VAL ISNUM:$ISNUM" >/dev/stderr
+        [ -z "$VAL" ] || [ "$ISNUM" ] && USAGE
+        #echo "OP:$OP VAL:$VAL ISNUM:$ISNUM" >&2
     
         case "$OP" in
             -s|--set|-set)
@@ -195,8 +203,7 @@ for SYS in $sysfs; do
         [ $NVAL -gt $MAX ] && NVAL=$MAX
         [ $NVAL -lt $LOWEST ] && NVAL=$LOWEST 
         echo $NVAL > "$SYS/brightness"
-        
-        #echo $(($NVAL*100/$MAX))"% ($NVAL/$MAX)" >/dev/stderr
+        #echo $(($NVAL*100/$MAX))"% ($NVAL/$MAX)" >&2
     }
 done
 exit 0
