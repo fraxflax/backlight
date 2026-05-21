@@ -65,5 +65,7 @@ Turn screen off (set brightness to 0) for all backlight devices. <br>
 `backlight --sysfs all --off`
 
 Flash the screen, restoring the backlight brightness afterwards:  <br>
-`B=$(backlight); backlight 0 ; sleep 0.5 ; backlight 100 ; sleep 0.5 ; backlight 0 ; sleep 0.5 ; backlight $B`     
+```
+B=$(backlight); backlight 0 ; sleep 0.5 ; backlight 100 ; sleep 0.5 ; backlight 0 ; sleep 0.5 ; backlight $B
+```     
 
