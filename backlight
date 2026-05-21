@@ -142,6 +142,7 @@ RemainAfterExit=no
 WantedBy=multi-user.target graphical.target
 
 EOF
+    chmod 644 /etc/systemd/system/backlightgroup.service
     systemctl daemon-reload || USAGE '# failed to reload systemd'
     systemctl enable backlightgroup.service || USAGE '# failed to enable the backlightgroup.service'
     systemctl start backlightgroup.service || USAGE '# failed to start the backlightgroup.service'
