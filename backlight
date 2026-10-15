@@ -2,14 +2,14 @@
 # 
 # https://github.com/fraxflax/backlight
 # 
-# backlight is a POSIX-compliant (pure bourne shell) script that
-# allows you to get and set the brightness of the screen via
+# backlight is a POSIX-compliant shell script that allows you to get
+# and set the brightness of the screen via
 # /sys/backlight if supported by your system.
 # 
 # This is free software created by frax@axnet.nu,
 # feel free to use, modify and/or distribute as you see fit.
 # 
-
+# 
 # Set LOWEST to 0 to be able to completely turn the backlight off with
 # -s and -d or to a higher value (e.g. 1) to prevent turning the
 # light completely off as this might be considered turning the screen
@@ -53,12 +53,21 @@ $___
        Allow the specified group (or the video group if none
        specified) to set the brighness forth on.
 
-       If systemd is in use '$___$backlight --install$__' will also install,
-       enable and run a systemd service making 'brightness' writeable
-       by the specified group at system startup.
+       If udev is in use '$___$backlight --install$__' will also install a
+       udev rule making 'brightness' writeable by the specified group
+       whenever a backlight device appears, so the permission survives
+       reboots and hotplug.
 
-       '$___$backlight --install$__' will replace the
-       /etc/systemd/system/backlightgroup.service if it already exists.
+       The rule is written to
+       /usr/local/lib/udev/rules.d/99-backlightgroup.rules and replaces
+       any previous one. A file of the same name in /etc/udev/rules.d/
+       takes precedence over it, should a host need to differ.
+
+       Earlier versions installed a systemd service instead, which could
+       not work reliably: the permission has to be set when the device
+       APPEARS, and no unit ordering expresses "after the graphics
+       driver has probed". '$___$backlight --install$__' removes that
+       service if it is still present.
 
        '$___$backlight --install$__' must be executed with effective user-id 0 (run as root / with sudo).
 
@@ -123,44 +132,54 @@ fi
 
 [ "$sysfs" ] || USAGE 'No backlight system found in /sys/class/backlight'
 for s in $sysfs; do
-	[ -e "$s/brightness" ] && [ "$s/max_brightness" ] || USAGE '"$s" does not appear to be a valid backlight sysfs device'
+	[ -e "$s/brightness" ] && [ -e "$s/max_brightness" ] || USAGE "'$s' does not appear to be a valid backlight sysfs device"
 done
 
 [ "--install" = "$OP" ] && {
     [ $(id -u) -eq 0 ] || USAGE "'$backlight --install' must be run as root"
     GRP=video
     [ -n "$VAL" ] && GRP=$VAL
-    grep -E "^$GRP:" /etc/group >/dev/null || USAGE 'group "$GRP" not found in /etc/group'
+    grep -E "^$GRP:" /etc/group >/dev/null || USAGE "group '$GRP' not found in /etc/group"
     chgrp $GRP /sys/class/backlight/*/brightness ; chmod g+w /sys/class/backlight/*/brightness
-    echo
-    ls -l /sys/class/backlight/*/brightness
-    echo
-    [ -d /etc/systemd/system ] || { echo "WARNING '/etc/systemd/system/' does not exists, systemd backlightgroup.service not installed."; exit 0;}
-    cat>/etc/systemd/system/backlightgroup.service<<EOF
-[Unit]
-Description=Permission for group $GRP to set backlight brightness
-After=systemd-modules-load.service
 
-[Service]
-Type=oneshot
-ExecStart=/bin/sh -c '/bin/chgrp $GRP /sys/class/backlight/*/brightness ; /bin/chmod g+w /sys/class/backlight/*/brightness'
-RemainAfterExit=no
+    RULESD=/usr/local/lib/udev/rules.d
+    RULE=$RULESD/99-backlightgroup.rules
 
-[Install]
-WantedBy=multi-user.target graphical.target
+    command -v udevadm >/dev/null 2>&1 || {
+        printf 'WARNING: udevadm not found, no rule installed.\n' >&2
+        printf 'The permissions set above apply to this boot only.\n' >&2
+        exit 0
+    }
+    CHGRP=$(command -v chgrp) || USAGE 'chgrp not found'
+    CHMOD=$(command -v chmod) || USAGE 'chmod not found'
 
+    mkdir -p "$RULESD" || USAGE "failed to create \"$RULESD\""
+    cat>"$RULE"<<EOF
+# Allow group $GRP to set the backlight brightness.
+# Written by "$backlight --install"; re-run it to change the group.
+ACTION=="add", SUBSYSTEM=="backlight", RUN+="$CHGRP $GRP /sys/class/backlight/%k/brightness", RUN+="$CHMOD g+w /sys/class/backlight/%k/brightness"
 EOF
-    chmod 644 /etc/systemd/system/backlightgroup.service
-    systemctl daemon-reload || USAGE '# failed to reload systemd'
-    systemctl enable backlightgroup.service || USAGE '# failed to enable the backlightgroup.service'
-    systemctl start backlightgroup.service || USAGE '# failed to start the backlightgroup.service'
-    systemctl status --no-pager backlightgroup.service
+    chmod 644 "$RULE" || USAGE "failed to set the mode of \"$RULE\""
+
+    [ -f /etc/systemd/system/backlightgroup.service ] && {
+        printf 'Removing the backlightgroup.service left by an earlier version...\n'
+        systemctl disable --now backlightgroup.service
+        rm -f /etc/systemd/system/backlightgroup.service
+        systemctl daemon-reload
+    }
+
+    udevadm control --reload || USAGE 'failed to reload the udev rules'
+    udevadm trigger --subsystem-match=backlight --action=add --settle
+
+    printf '\n--- Installed: "%s" ---\n' "$RULE"
+    cat "$RULE"
+    printf '\n--- Currently available backlight devices:\n'
+    ls -l /sys/class/backlight/*/brightness
     exit 0
 }
 
 
 for SYS in $sysfs; do
-    #echo "SYS:$sysfs" >&2
     [ -e "$SYS/brightness" ] && [ -e "$SYS/max_brightness" ] && {
         MAX=$(cat "$SYS/max_brightness")
         CUR=$(cat "$SYS/brightness")
@@ -183,7 +202,6 @@ for SYS in $sysfs; do
         ISNUM=$(echo $VAL | sed 's/[0-9]*//') # if there was no digits at all this will be nonempty
 
         [ -z "$VAL" ] || [ "$ISNUM" ] && USAGE
-        #echo "OP:$OP VAL:$VAL ISNUM:$ISNUM" >&2
     
         case "$OP" in
             -s|--set|-set)
@@ -203,7 +221,6 @@ for SYS in $sysfs; do
         [ $NVAL -gt $MAX ] && NVAL=$MAX
         [ $NVAL -lt $LOWEST ] && NVAL=$LOWEST 
         echo $NVAL > "$SYS/brightness"
-        #echo $(($NVAL*100/$MAX))"% ($NVAL/$MAX)" >&2
     }
 done
 exit 0

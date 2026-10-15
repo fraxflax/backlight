@@ -29,9 +29,11 @@ Set the brightness to 0 (turn the backlight off).  <br>
 `backlight --install` [ groupname ]  <br>
 Allow the specified group (or the video group if none specified) to set the brighness forth on.
 
-If systemd is in use '`backlight --install`' will also install, enable and run a systemd service making 'brightness' writeable by the specified group at system startup.
+If udev is in use '`backlight --install`' will also install a udev rule making 'brightness' writeable by the specified group whenever a backlight device appears, so the permission survives reboots and hotplug.
 
-'`backlight --install`' will replace the /etc/systemd/system/backlightgroup.service if it already exists.
+The rule is written to /usr/local/lib/udev/rules.d/99-backlightgroup.rules and replaces any previous one. A file of the same name in /etc/udev/rules.d/ takes precedence over it, should a host need to differ.
+
+Earlier versions installed a systemd service instead, which could not work reliably: the permission has to be set when the device appears, and no unit ordering expresses "after the graphics driver has probed". '`backlight --install`' removes that service if it is still present.
 
 '`backlight --install`' must be executed with effective user-id 0 (run as root / with sudo).
 
@@ -65,7 +67,5 @@ Turn screen off (set brightness to 0) for all backlight devices. <br>
 `backlight --sysfs all --off`
 
 Flash the screen, restoring the backlight brightness afterwards:  <br>
-```
-B=$(backlight); backlight 0 ; sleep 0.5 ; backlight 100 ; sleep 0.5 ; backlight 0 ; sleep 0.5 ; backlight $B
-```     
+`B=$(backlight); backlight 0 ; sleep 0.5 ; backlight 100 ; sleep 0.5 ; backlight 0 ; sleep 0.5 ; backlight $B`     
 
