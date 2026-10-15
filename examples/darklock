@@ -11,7 +11,7 @@
 # 
 
 # get current backlight, and save it
-BL=`backlight --get`
+BL=$(backlight --get)
 
 # Darken screen
 backlight --set 0
@@ -24,7 +24,7 @@ if which fraxlock > /dev/null; then
     fraxlock; EXITCODE=$?
 elif which physlock  > /dev/null; then
     physlock -L ; physlock -sm; EXITCODE=$?
-elif which vlock > /dev/null -a [ "`tty | cut -c-8`" = "/dev/tty" ]; then
+elif which vlock > /dev/null -a [ "$(tty | cut -c-8)" = "/dev/tty" ]; then
     vlock -a; EXITCODE=$?
 else
     echo 'No suitable locker found ... terminating!' >/dev/stderr
